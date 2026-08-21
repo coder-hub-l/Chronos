@@ -34,6 +34,7 @@ app.add_middleware(
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 app.include_router(ws_router)
 
+@app.get("/")
 @app.get("/health")
 def health_check():
     try:
