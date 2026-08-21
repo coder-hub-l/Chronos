@@ -196,22 +196,27 @@ class MemoryRedisClient:
 def get_redis_client():
     """Returns a connected live Redis client if available, or the embedded Redis engine."""
     from app.core.config import settings
+    import os
+    redis_url = os.getenv("REDIS_URL") or os.getenv("REDIS_PRIVATE_URL") or os.getenv("REDISURL")
     try:
         import redis
-        client = redis.Redis(
-            host=settings.REDIS_HOST,
-            port=settings.REDIS_PORT,
-            db=settings.REDIS_DB,
-            password=settings.REDIS_PASSWORD or None,
-            decode_responses=True,
-            socket_timeout=1.0
-        )
+        if redis_url:
+            client = redis.Redis.from_url(redis_url, decode_responses=True, socket_timeout=2.0)
+        else:
+            client = redis.Redis(
+                host=settings.REDIS_HOST,
+                port=settings.REDIS_PORT,
+                db=settings.REDIS_DB,
+                password=settings.REDIS_PASSWORD or None,
+                decode_responses=True,
+                socket_timeout=2.0
+            )
         client.ping()
         client.is_emulated = False
-        print("[Redis] Connected to live Redis instance at localhost:6379")
+        print(f"[Redis] Connected to live Redis instance")
         return client
-    except Exception:
-        print("[Redis] Live Redis server not detected. Initialized embedded high-performance Redis engine.")
+    except Exception as e:
+        print(f"[Redis] Live Redis connection notice ({e}). Initialized embedded high-performance Redis engine.")
         return MemoryRedisClient()
 
 redis_client = get_redis_client()

@@ -36,11 +36,15 @@ app.include_router(ws_router)
 
 @app.get("/health")
 def health_check():
+    try:
+        metrics = RedisQueueEngine.get_metrics_snapshot()
+    except Exception:
+        metrics = {}
     return {
         "status": "healthy",
         "engine": settings.PROJECT_NAME,
         "version": settings.VERSION,
-        "metrics": RedisQueueEngine.get_metrics_snapshot()
+        "metrics": metrics
     }
 
 if __name__ == "__main__":
