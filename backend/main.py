@@ -38,7 +38,11 @@ app.add_middleware(
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
 app.include_router(ws_router)
 
-@app.get("/")
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+frontend_dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+
 @app.get("/health")
 def health_check():
     try:
@@ -51,6 +55,16 @@ def health_check():
         "version": settings.VERSION,
         "metrics": metrics
     }
+
+if (frontend_dist / "assets").exists():
+    app.mount("/assets", StaticFiles(directory=str(frontend_dist / "assets")), name="assets")
+
+@app.get("/")
+def serve_root():
+    index_file = frontend_dist / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return health_check()
 
 if __name__ == "__main__":
     import uvicorn
