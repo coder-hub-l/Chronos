@@ -1,4 +1,8 @@
-const API_BASE = 'http://localhost:8001';
+const API_BASE = typeof window !== 'undefined'
+  ? (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1')
+      ? (window.location.port === '5174' || window.location.port === '5173' ? 'http://localhost:8001' : window.location.origin)
+      : window.location.origin)
+  : 'http://localhost:8001';
 
 class ChronosApi {
   async request(endpoint, options = {}) {

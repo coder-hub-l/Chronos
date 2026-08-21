@@ -32,9 +32,18 @@ export function EngineProvider({ children }) {
   useEffect(() => {
     let reconnectTimeout = null;
 
+    const getWsUrl = () => {
+      if (typeof window === 'undefined') return 'ws://localhost:8001/ws/telemetry';
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        return `${protocol}//${window.location.hostname}:8001/ws/telemetry`;
+      }
+      return `${protocol}//${window.location.host}/ws/telemetry`;
+    };
+
     const connectWs = () => {
       try {
-        const ws = new WebSocket('ws://localhost:8001/ws/telemetry');
+        const ws = new WebSocket(getWsUrl());
         ws.onopen = () => {
           setWsConnected(true);
         };
