@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Body
 from typing import List, Dict, Any
 from app.schemas.task import WorkflowDefinition, WorkflowRun
 from app.engine.workflows import VERSIONED_TEMPLATES, trigger_workflow_run
@@ -15,7 +15,7 @@ def list_templates():
 def trigger_workflow(
     workflow_id: str,
     version: int = Query(default=1, ge=1),
-    custom_payload: Dict[str, Any] = None
+    custom_payload: Dict[str, Any] = Body(default={})
 ):
     """Trigger an execution run of a specific workflow version."""
     try:

@@ -13,7 +13,10 @@ class ChronosApi {
     });
     if (!response.ok) {
       const err = await response.json().catch(() => ({ detail: response.statusText }));
-      throw new Error(err.detail || 'API request failed');
+      const msg = Array.isArray(err.detail)
+        ? err.detail.map(e => e.msg).join(', ')
+        : (typeof err.detail === 'string' ? err.detail : (err.message || 'API request failed'));
+      throw new Error(msg);
     }
     return response.json();
   }
